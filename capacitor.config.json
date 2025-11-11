@@ -1,0 +1,10 @@
+{
+  "appId": "com.example.dswd_app",
+  "appName": "Poofsa",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "https://dswd-uat.vercel.app",
+    "cleartext": true
+  }
+}
