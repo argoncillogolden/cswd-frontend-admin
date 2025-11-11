@@ -6,7 +6,7 @@
                     <img :src="logo" loading="lazy" alt="DSWD Logo" />
                 </div>
                 <h2 class="text-center">
-                    <span class="text-info">CSWD Digital ID</span> Verification and<br /> Service System.
+                    <span class="text-info">Digital ID</span> Verification and<br /> Service System
                 </h2>
                 <v-form ref="form" @submit.prevent="handleLogin" v-model="isFormValid" class="pa-4">
                     <div class="text-subtitle-1 text-medium-emphasis">Email</div>
