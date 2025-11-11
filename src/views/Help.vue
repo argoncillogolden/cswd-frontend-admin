@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
     <v-container class="mt-3">
-        <h2>Help</h2>
+        <h2>Bulig</h2>
         <v-card class="pa-2 mt-3">
             <v-card-text>
                 <v-container class="text-center mb-2">
