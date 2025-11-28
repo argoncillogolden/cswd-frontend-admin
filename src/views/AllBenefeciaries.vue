@@ -30,11 +30,6 @@
                 </v-col>
             </v-row>
             <div>
-                <v-btn @click="handleDownload" color="green" variant="tonal" size="small" class="ms-2 pb-7 ps-5 pa-3"
-                    prepend-icon="mdi-download">
-                    <span class="to-hide">XLS</span>
-                    <span class="to-show"></span>
-                </v-btn>
                 <v-btn @click="toNewBenef" color="blue" variant="tonal" size="small" class="ms-2 pb-7 ps-5 pa-3"
                     prepend-icon="mdi-plus">
                     <span class="to-hide">Add Benefeciary</span>
@@ -611,97 +606,97 @@ export default {
             this.confirmDialog = false;
         },
 
-        handleDownload() {
-            if (this.selectedBarangay) {
-                this.downloadFilteredBenefeciaries(this.selectedBarangay);
-            } else {
-                this.downloadBenefeciaries();
-            }
-        },
+        // handleDownload() {
+        //     if (this.selectedBarangay) {
+        //         this.downloadFilteredBenefeciaries(this.selectedBarangay);
+        //     } else {
+        //         this.downloadBenefeciaries();
+        //     }
+        // },
 
-        async downloadFilteredBenefeciaries(filterBarangay) {
-            await this.benefeciaryStore.fetchAllFilteredBenefStore(filterBarangay);
-            if (this.benefeciaryStore.allBenefeciaries.length === 0) {
-                this.showError("No benefeciary available to download.");
-                return;
-            } else {
-                this.loadingStore.show('Downloading benefeciary...');
-            }
-            const allBenefeciaries = this.benefeciaryStore.allBenefeciaries.map(benef => ({
-                'Benefeciary Name': benef.first_name + ' ' + benef.middle_name + ' ' + benef.last_name + ' ' + benef.suffix ?? '',
-                'Birthdate': this.formatDateDownload(benef.birthdate),
-                'Age': benef.benef_age,
-                'Gender': benef.gender_label,
-                'Address': benef.address_line1 + ' Barangay ' + benef.barangay_name + ' ' + benef.address_line3,
-                'Contact': benef.contact_number,
-                'Blood type': benef.bloodtype_label,
-                'Category': benef.category_label,
-                'Last Update': this.formatDateDownload(benef.updated_at),
-            }));
+        // async downloadFilteredBenefeciaries(filterBarangay) {
+        //     await this.benefeciaryStore.fetchAllFilteredBenefStore(filterBarangay);
+        //     if (this.benefeciaryStore.allBenefeciaries.length === 0) {
+        //         this.showError("No benefeciary available to download.");
+        //         return;
+        //     } else {
+        //         this.loadingStore.show('Downloading benefeciary...');
+        //     }
+        //     const allBenefeciaries = this.benefeciaryStore.allBenefeciaries.map(benef => ({
+        //         'Benefeciary Name': benef.first_name + ' ' + benef.middle_name + ' ' + benef.last_name + ' ' + benef.suffix ?? '',
+        //         'Birthdate': this.formatDateDownload(benef.birthdate),
+        //         'Age': benef.benef_age,
+        //         'Gender': benef.gender_label,
+        //         'Address': benef.address_line1 + ' Barangay ' + benef.barangay_name + ' ' + benef.address_line3,
+        //         'Contact': benef.contact_number,
+        //         'Blood type': benef.bloodtype_label,
+        //         'Category': benef.category_label,
+        //         'Last Update': this.formatDateDownload(benef.updated_at),
+        //     }));
 
-            const headings = [
-                `Name of company: DSWD`,
-                `Location: Sagay City, Negros Island Region`,
-                `Date: ${this.formatCurrentDate}`,
-                `Prepared by : Admin`,
-                '',
-            ].join('\n');
+        //     const headings = [
+        //         `Name of company: DSWD`,
+        //         `Location: Sagay City, Negros Island Region`,
+        //         `Date: ${this.formatCurrentDate}`,
+        //         `Prepared by : Admin`,
+        //         '',
+        //     ].join('\n');
 
-            const csvContent = "data:text/csv;charset=utf-8,"
-                + headings + "\n"
-                + Object.keys(allBenefeciaries[0]).join(",") + "\n"
-                + allBenefeciaries.map(e => Object.values(e).join(",")).join("\n");
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Benefeciary_Report.csv`);
-            document.body.appendChild(link);
-            link.click();
-            this.loadingStore.hide();
-            document.body.removeChild(link);
-        },
+        //     const csvContent = "data:text/csv;charset=utf-8,"
+        //         + headings + "\n"
+        //         + Object.keys(allBenefeciaries[0]).join(",") + "\n"
+        //         + allBenefeciaries.map(e => Object.values(e).join(",")).join("\n");
+        //     const encodedUri = encodeURI(csvContent);
+        //     const link = document.createElement("a");
+        //     link.setAttribute("href", encodedUri);
+        //     link.setAttribute("download", `Benefeciary_Report.csv`);
+        //     document.body.appendChild(link);
+        //     link.click();
+        //     this.loadingStore.hide();
+        //     document.body.removeChild(link);
+        // },
 
-        async downloadBenefeciaries() {
-            await this.benefeciaryStore.fetchAllBenefStore();
-            if (this.benefeciaryStore.allBenefeciaries.length === 0) {
-                this.showError("No benefeciary available to download.");
-                return;
-            } else {
-                this.loadingStore.show('Downloading benefeciary...');
-            }
-            const allBenefeciaries = this.benefeciaryStore.allBenefeciaries.map(benef => ({
-                'Benefeciary Name': benef.first_name + ' ' + benef.middle_name + ' ' + benef.last_name + ' ' + benef.suffix ?? '',
-                'Birthdate': this.formatDateDownload(benef.birthdate),
-                'Age': benef.benef_age,
-                'Gender': benef.gender_label,
-                'Address': benef.address_line1 + ' Barangay ' + benef.barangay_name + ' ' + benef.address_line3,
-                'Contact': benef.contact_number,
-                'Blood type': benef.bloodtype_label,
-                'Category': benef.category_label,
-                'Last Update': this.formatDateDownload(benef.updated_at),
-            }));
+        // async downloadBenefeciaries() {
+        //     await this.benefeciaryStore.fetchAllBenefStore();
+        //     if (this.benefeciaryStore.allBenefeciaries.length === 0) {
+        //         this.showError("No benefeciary available to download.");
+        //         return;
+        //     } else {
+        //         this.loadingStore.show('Downloading benefeciary...');
+        //     }
+        //     const allBenefeciaries = this.benefeciaryStore.allBenefeciaries.map(benef => ({
+        //         'Benefeciary Name': benef.first_name + ' ' + benef.middle_name + ' ' + benef.last_name + ' ' + benef.suffix ?? '',
+        //         'Birthdate': this.formatDateDownload(benef.birthdate),
+        //         'Age': benef.benef_age,
+        //         'Gender': benef.gender_label,
+        //         'Address': benef.address_line1 + ' Barangay ' + benef.barangay_name + ' ' + benef.address_line3,
+        //         'Contact': benef.contact_number,
+        //         'Blood type': benef.bloodtype_label,
+        //         'Category': benef.category_label,
+        //         'Last Update': this.formatDateDownload(benef.updated_at),
+        //     }));
 
-            const headings = [
-                `Name of company: DSWD`,
-                `Location: Sagay City, Negros Island Region`,
-                `Date: ${this.formatCurrentDate}`,
-                `Prepared by : Admin`,
-                '',
-            ].join('\n');
+        //     const headings = [
+        //         `Name of company: DSWD`,
+        //         `Location: Sagay City, Negros Island Region`,
+        //         `Date: ${this.formatCurrentDate}`,
+        //         `Prepared by : Admin`,
+        //         '',
+        //     ].join('\n');
 
-            const csvContent = "data:text/csv;charset=utf-8,"
-                + headings + "\n"
-                + Object.keys(allBenefeciaries[0]).join(",") + "\n"
-                + allBenefeciaries.map(e => Object.values(e).join(",")).join("\n");
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Benefeciary_Report.csv`);
-            document.body.appendChild(link);
-            link.click();
-            this.loadingStore.hide();
-            document.body.removeChild(link);
-        },
+        //     const csvContent = "data:text/csv;charset=utf-8,"
+        //         + headings + "\n"
+        //         + Object.keys(allBenefeciaries[0]).join(",") + "\n"
+        //         + allBenefeciaries.map(e => Object.values(e).join(",")).join("\n");
+        //     const encodedUri = encodeURI(csvContent);
+        //     const link = document.createElement("a");
+        //     link.setAttribute("href", encodedUri);
+        //     link.setAttribute("download", `Benefeciary_Report.csv`);
+        //     document.body.appendChild(link);
+        //     link.click();
+        //     this.loadingStore.hide();
+        //     document.body.removeChild(link);
+        // },
 
         formatallBenef(benef) {
             let benefSuffix = benef.suffix;

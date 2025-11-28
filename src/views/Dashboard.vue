@@ -67,11 +67,7 @@
         </v-card>
         <v-card>
             <v-card-text>
-                <BarChart 
-                    :total-benef-count="totalBenefCount"
-                    :total-seniors-count="totalSeniorsCount"
-                    :total-pwd-count="totalPWDCount"
-                    :total-hand-over-count="totalHandOverCount"/>
+                <BarChart :hand-over-dates-data="handOverDatesData"/>
             </v-card-text>
         </v-card>
     </v-container>
@@ -92,6 +88,7 @@ export default {
 
     data() {
         return {
+            handOverDatesData: [],
             totalBenefCount: null,
             totalPWDCount: null,
             totalSeniorsCount: null,
@@ -135,6 +132,7 @@ export default {
             try {
                 this.loadingStore.show("");
                 await Promise.all([
+                    this.fetchHandOverDates(),
                     this.fetchTotalBenef(),
                     this.fetchTotalPWDS(),
                     this.fetchTotalSeniors(),
@@ -144,6 +142,21 @@ export default {
                 console.error(error);
             } finally {
                 this.loadingStore.hide();
+            }
+        },
+
+        // Read all hand-over dates
+        async fetchHandOverDates() {
+            this.loadingStore.show('');
+            try {
+                await this.benefeciaryStore.fetchHandOverDatesStore();
+                this.handOverDatesData = this.benefeciaryStore.allHandOverDates;
+                if (this.handOverDatesData && this.handOverDatesData.length > 0) {
+                    this.handOverDatesData = this.handOverDatesData.map(order => this.formatHandOverData(order));
+                }
+            } catch (error) {
+                console.error(error);
+                this.showError(error);
             }
         },
 
@@ -181,6 +194,30 @@ export default {
             } catch (error) {
                 console.error(error);
             }
+        },
+
+        formatHandOverData(data) {
+            return {
+                ...data,
+                updated_at: data.updated_at ? this.formatDateTime(data.updated_at) : 'N/A',
+                designated_barangay: `Brgy. ${data.barangay_name}`.trim(),
+            };
+        },
+
+        formatDateTime(dateString) {
+            if (!dateString) return 'N/A';
+            let date;
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+                date = new Date(dateString + 'T00:00:00');
+            } else {
+                date = new Date(dateString);
+            }
+            if (isNaN(date)) return 'N/A';
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
         },
 
     },

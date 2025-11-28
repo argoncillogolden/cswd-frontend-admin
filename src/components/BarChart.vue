@@ -1,6 +1,6 @@
 <template>
   <div>
-    <canvas ref="barChart"></canvas>
+    <canvas ref="barChart" :key="chartKey"></canvas>
   </div>
 </template>
 
@@ -12,156 +12,209 @@ export default {
   name: 'BarChart',
 
   props: {
-    totalBenefCount: {
-      type: [Number, String],
-      default: 0
-    },
-    totalSeniorsCount: {
-      type: [Number, String],
-      default: 0
-    },
-    totalPwdCount: {
-      type: [Number, String],
-      default: 0
-    },
-    totalHandOverCount: {
-      type: [Number, String],
-      default: 0
-    },
+    handOverDatesData: {
+      type: Array,
+      default: () => []
+    }
   },
 
   setup(props) {
     const barChart = ref(null);
     const chartInstance = ref(null);
-    const isInitialized = ref(false);
-
-    const parseCount = (count) => {
-      if (typeof count === 'string') {
-        return Number(count.replace(/,/g, '')) || 0;
-      }
-      return count || 0;
-    };
+    const chartKey = ref(0);
 
     const safeDestroyChart = () => {
-      if (chartInstance.value) {
+      if (chartInstance.value && typeof chartInstance.value.destroy === 'function') {
         try {
-          const chart = chartInstance.value;
-          chartInstance.value = null;
-          chart.destroy();
+          // Disable animations before destruction
+          if (chartInstance.value.options) {
+            chartInstance.value.options.animation = false;
+          }
+          chartInstance.value.destroy();
         } catch (error) {
           console.warn('Error destroying chart:', error);
         }
       }
+      chartInstance.value = null;
+    };
+
+    const processHandOverData = () => {
+      if (!props.handOverDatesData || props.handOverDatesData.length === 0) {
+        return {
+          labels: ['No Data'],
+          cashAmounts: [0],
+          categories: ['No Category'],
+          barangays: ['No Barangay']
+        };
+      }
+
+      // Sort by date to ensure chronological order
+      const sortedData = [...props.handOverDatesData].sort((a, b) => {
+        return new Date(a.hand_over_date) - new Date(b.hand_over_date);
+      });
+
+      const labels = sortedData.map(item => item.hand_over_date);
+      const cashAmounts = sortedData.map(item => item.cash_amount || 0);
+      const categories = sortedData.map(item => item.category_label || 'Unknown');
+      const barangays = sortedData.map(item => item.barangay_name || 'Unknown');
+
+      return { labels, cashAmounts, categories, barangays };
     };
 
     const initializeChart = () => {
-      if (!barChart.value || !barChart.value.getContext) {
-        console.warn('Canvas not ready for chart initialization');
-        return;
-      }
+      // Force re-render by updating key
+      chartKey.value += 1;
+      
+      nextTick(() => {
+        setTimeout(() => {
+          if (!barChart.value) {
+            console.warn('Canvas element not found');
+            return;
+          }
 
-      safeDestroyChart();
+          safeDestroyChart();
 
-      try {
-        const benefCount = parseCount(props.totalBenefCount);
-        const seniorsCount = parseCount(props.totalSeniorsCount);
-        const pwdCount = parseCount(props.totalPwdCount);
-        const handOverCount = parseCount(props.totalHandOverCount);
+          try {
+            const { labels, cashAmounts, categories, barangays } = processHandOverData();
 
-        const ctx = barChart.value.getContext('2d');
-        if (!ctx) {
-          console.warn('Could not get canvas context');
-          return;
-        }
+            const ctx = barChart.value.getContext('2d');
+            if (!ctx) {
+              console.warn('Could not get canvas context');
+              return;
+            }
 
-        chartInstance.value = new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: ['All Beneficiaries', 'Senior Citizens', 'PWDs', 'Hand Overs'],
-            datasets: [
-              {
-                label: 'Count',
-                data: [benefCount, seniorsCount, pwdCount, handOverCount],
-                backgroundColor: [
-                  '#3eff58c4',
-                  '#fa8c24ce',
-                  '#fbc12dcc',
-                  '#ff4081cc',
+            chartInstance.value = new Chart(ctx, {
+              type: 'bar',
+              data: {
+                labels: labels,
+                datasets: [
+                  {
+                    label: 'Cash Amount (₱)',
+                    data: cashAmounts,
+                    backgroundColor: [
+                      '#3eff58c4',
+                      '#fa8c24ce',
+                      '#fbc12dcc',
+                      '#ff4081cc',
+                      '#9c27b0cc',
+                      '#2196f3cc',
+                      '#00bcd4cc',
+                      '#4caf50cc',
+                    ],
+                    borderColor: [
+                      '#009b15',
+                      '#c05d00d2',
+                      '#ffb700',
+                      '#ff4081',
+                      '#7b1fa2',
+                      '#1976d2',
+                      '#0097a7',
+                      '#388e3c',
+                    ],
+                    borderRadius: 8,
+                    borderWidth: 2,
+                  },
                 ],
-                borderColor: [
-                  '#009b15',
-                  '#c05d00d2',
-                  '#ffb700',
-                  '#ff4081',
-                ],
-                borderRadius: 8,
-                borderWidth: 2,
               },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: {
-              duration: 0
-            },
-            plugins: {
-              legend: {
-                display: false,
-              },
-              title: {
-                display: true,
-                text: 'Beneficiary Distribution',
-                font: {
-                  size: 18,
-                  weight: 'bold',
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                  duration: 300,
+                  easing: 'easeOutQuart'
                 },
-                color: '#0044d6',
+                plugins: {
+                  legend: {
+                    display: false,
+                  },
+                  title: {
+                    display: true,
+                    text: labels[0] === 'No Data' ? 'No Hand-Over Data Available' : 'Hand-Over Distribution',
+                    font: {
+                      size: 18,
+                      weight: 'bold',
+                    },
+                    color: '#0044d6',
+                  },
+                  tooltip: {
+                    callbacks: {
+                      afterLabel: function(context) {
+                        const index = context.dataIndex;
+                        if (labels[index] === 'No Data') {
+                          return 'No hand-over data available';
+                        }
+                        return [
+                          `Benefeciary: ${categories[index]}`,
+                          `Barangay: ${barangays[index]}`
+                        ];
+                      },
+                      label: function(context) {
+                        if (labels[context.dataIndex] === 'No Data') {
+                          return 'No data';
+                        }
+                        return `Amount: ₱${context.parsed.y}`;
+                      }
+                    }
+                  }
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    title: {
+                      display: true,
+                      text: 'Cash Amount (₱)',
+                      font: {
+                        weight: 'bold'
+                      }
+                    },
+                    ticks: {
+                      callback: function(value) {
+                        return '₱' + value;
+                      }
+                    }
+                  },
+                  x: {
+                    title: {
+                      display: true,
+                      text: 'Hand-Over Date',
+                      font: {
+                        weight: 'bold'
+                      }
+                    }
+                  }
+                }
               },
-            },
-          },
-        });
+            });
 
-        isInitialized.value = true;
-      } catch (error) {
-        console.error('Error initializing chart:', error);
-        isInitialized.value = false;
-      }
+          } catch (error) {
+            console.error('Error initializing chart:', error);
+          }
+        }, 100);
+      });
     };
 
     onMounted(() => {
-      nextTick(() => {
-        if (barChart.value) {
-          initializeChart();
-        } else {
-          setTimeout(() => {
-            initializeChart();
-          }, 150);
-        }
-      });
+      initializeChart();
     });
 
     watch(
-      () => [props.totalBenefCount, props.totalSeniorsCount, props.totalPwdCount, props.totalHandOverCount],
-      (newValues, oldValues) => {
-        const hasChanged = JSON.stringify(newValues) !== JSON.stringify(oldValues);
+      () => props.handOverDatesData,
+      (newData, oldData) => {
+        const hasChanged = JSON.stringify(newData) !== JSON.stringify(oldData);
         if (hasChanged) {
-          nextTick(() => {
-            setTimeout(() => {
-              initializeChart();
-            }, 10);
-          });
+          initializeChart();
         }
-      }
+      },
+      { deep: true }
     );
 
     onUnmounted(() => {
-      isInitialized.value = false;
       safeDestroyChart();
     });
 
     return { 
-      barChart
+      barChart,
+      chartKey
     };
   },
 };

@@ -36,6 +36,7 @@
               Benefeciaries</v-list-item>
             <v-list-item prepend-icon="mdi-hand-heart-outline" @click="toHandOvers" class="ps-3">Hand
               Overs</v-list-item>
+            <v-list-item prepend-icon="mdi-chart-bar" @click="toReports" class="ps-3">Reports</v-list-item>
             <v-list-item prepend-icon="mdi-account-cog-outline" @click="toSettings" class="ps-3">Settings</v-list-item>
             <v-list-item prepend-icon="mdi-information-outline" @click="toAbout" class="ps-3">About</v-list-item>
             <v-list-item prepend-icon="mdi-help-circle-outline" @click="toHelp" class="ps-3">Help</v-list-item>
@@ -201,6 +202,10 @@ export default {
 
     toHandOvers() {
       this.$router.push('/hand-overs');
+    },
+
+    toReports() {
+      this.$router.push('/reports');
     },
 
     toSettings() {

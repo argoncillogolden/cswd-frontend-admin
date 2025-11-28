@@ -19,11 +19,6 @@
                 </v-col>
             </v-row>
             <div>
-                <v-btn color="green" variant="tonal" size="small" class="ms-2 pb-7 ps-5 pa-3"
-                    prepend-icon="mdi-download" @click="downloadHandOverDates">
-                    <span class="to-hide">XLS</span>
-                    <span class="to-show"></span>
-                </v-btn>
                 <v-btn @click="toNewHandOverSched" color="blue" variant="tonal" size="small" class="ms-2 pb-7 ps-5 pa-3"
                     prepend-icon="mdi-plus">
                     <span class="to-hide">Add Hand-over Schedule</span>
@@ -572,47 +567,47 @@ export default {
             }
         },
 
-        async downloadHandOverDates() {
-            await this.benefeciaryStore.fetchHandOverDatesStore(this.branchId);
-            if (this.benefeciaryStore.allHandOverDates.length === 0) {
-                this.showError("No hand-over data available to download.");
-                return;
-            } else {
-                this.loadingStore.show('Downloading hand-over data...');
-            }
-            const allHandOverDates = this.benefeciaryStore.allHandOverDates.map(data => ({
-                'Date of Hand-over': this.formatDateDownload(data.hand_over_date),
-                'Coordinator': data.coordinator,
-                'Benefeciary': data.category_label,
-                'Venue': data.venue,
-                'Dedicated Barangay': 'Brgy. ' + data.barangay_name + ' ' + data.address_line2,
-                'Type of Benefit': data.benefit_type,
-                'Status': data.hand_over_status_label,
-                'Last Update': this.formatDateDownload(data.updated_at),
-            }));
+        // async downloadHandOverDates() {
+        //     await this.benefeciaryStore.fetchHandOverDatesStore(this.branchId);
+        //     if (this.benefeciaryStore.allHandOverDates.length === 0) {
+        //         this.showError("No hand-over data available to download.");
+        //         return;
+        //     } else {
+        //         this.loadingStore.show('Downloading hand-over data...');
+        //     }
+        //     const allHandOverDates = this.benefeciaryStore.allHandOverDates.map(data => ({
+        //         'Date of Hand-over': this.formatDateDownload(data.hand_over_date),
+        //         'Coordinator': data.coordinator,
+        //         'Benefeciary': data.category_label,
+        //         'Venue': data.venue,
+        //         'Dedicated Barangay': 'Brgy. ' + data.barangay_name + ' ' + data.address_line2,
+        //         'Type of Benefit': data.benefit_type,
+        //         'Status': data.hand_over_status_label,
+        //         'Last Update': this.formatDateDownload(data.updated_at),
+        //     }));
 
-            const headings = [
-                `Name of company: DSWD`,
-                `Location: Sagay City, Negros Island Region`,
-                `Date: ${this.formatCurrentDate}`,
-                `Prepared by : Admin`,
-                '',
-            ].join('\n');
+        //     const headings = [
+        //         `Name of company: DSWD`,
+        //         `Location: Sagay City, Negros Island Region`,
+        //         `Date: ${this.formatCurrentDate}`,
+        //         `Prepared by : Admin`,
+        //         '',
+        //     ].join('\n');
 
-            const csvContent = "data:text/csv;charset=utf-8,"
-                + headings + "\n"
-                + Object.keys(allHandOverDates[0]).join(",") + "\n"
-                + allHandOverDates.map(e => Object.values(e).join(",")).join("\n");
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Hand-over_Report.csv`);
-            document.body.appendChild(link); // Required for FF
-            this.showSuccess("Hand-over downloaded successfully!");
-            link.click();
-            this.loadingStore.hide();
-            document.body.removeChild(link);
-        },
+        //     const csvContent = "data:text/csv;charset=utf-8,"
+        //         + headings + "\n"
+        //         + Object.keys(allHandOverDates[0]).join(",") + "\n"
+        //         + allHandOverDates.map(e => Object.values(e).join(",")).join("\n");
+        //     const encodedUri = encodeURI(csvContent);
+        //     const link = document.createElement("a");
+        //     link.setAttribute("href", encodedUri);
+        //     link.setAttribute("download", `Hand-over_Report.csv`);
+        //     document.body.appendChild(link); // Required for FF
+        //     this.showSuccess("Hand-over downloaded successfully!");
+        //     link.click();
+        //     this.loadingStore.hide();
+        //     document.body.removeChild(link);
+        // },
 
         formatHandOverData(data) {
             return {

@@ -8,6 +8,7 @@ import HandOverEvent from '@/views/HandOverEvent.vue';
 import NewBenefeciary from '@/views/NewBenefeciary.vue';
 import NewHandOverSchedule from '@/views/NewHandOverSchedule.vue';
 import Help from '@/views/Help.vue';
+import Reports from '@/views/Reports.vue';
 import About from '@/views/About.vue';
 import Settings from '@/views/Settings.vue';
 import Reference from '@/views/Reference.vue';
@@ -23,6 +24,7 @@ const routes = [
     { path: '/new-benefeciary', name: 'NewBenefeciary', component: NewBenefeciary, meta: { requiresAuth: true } },
     { path: '/new-hand-over-schedule', name: 'NewHandOverSchedule', component: NewHandOverSchedule, meta: { requiresAuth: true } },
     { path: '/help', name: 'Help', component: Help, meta: { requiresAuth: true } },
+    { path: '/reports', name: 'Reports', component: Reports, meta: { requiresAuth: true } },
     { path: '/about', name: 'About', component: About, meta: { requiresAuth: true } },
     { path: '/settings', name: 'Settings', component: Settings, meta: { requiresAuth: true } },
     { path: '/reference/:reference', name: 'Reference', component: Reference },
