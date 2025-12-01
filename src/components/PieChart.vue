@@ -65,7 +65,7 @@ export default {
         }
 
         chartInstance.value = new Chart(ctx, {
-          type: 'bar',
+          type: 'pie',
           data: {
             labels: ['Senior Citizens', 'PWDs'],
             datasets: [
